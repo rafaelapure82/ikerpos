@@ -1,0 +1,17 @@
+{
+  "nombre": "IKER POSPyME, C.A.",
+  "rif": "J-40912185-0",
+  "telefono": "+58 (212) 555-0199",
+  "direccion": "Av. Francisco de Miranda, Edificio Centro Seguros, Achaguas, Apure, Venezuela",
+  "email": "contacto@ikerpospyme.com",
+  "moneda": "USD",
+  "impuestoPorcentaje": 16,
+  "mensajePieFactura": "¡Gracias por preferirnos! Su confianza nos impulsa a seguir creciendo.",
+  "registroMercantil": "Registro Mercantil Primero de la Circunscripción Judicial del Distrito Capital, Tomo 190-A, Número 45",
+  "tasaBcv": 520,
+  "habilitarIgtf": true,
+  "pagoMovilBanco": "Banesco",
+  "pagoMovilTelefono": "0414-1234567",
+  "pagoMovilRif": "J-40912185-0",
+  "formatoFactura": "FISCAL"
+}

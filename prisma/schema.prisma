@@ -1,0 +1,171 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Rol {
+  ADMIN
+  VENDEDOR
+  COMPRAS
+}
+
+enum EstadoVenta {
+  PAGADA
+  PENDIENTE
+  ANULADA
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  AJUSTE
+}
+
+model User {
+  id       String @id @default(cuid())
+  username String @unique
+  nombre   String
+  password String
+  rol      Rol    @default(VENDEDOR)
+  activo   Boolean @default(true)
+}
+
+model Cliente {
+  id           String  @id @default(cuid())
+  rif          String  @unique
+  nombre       String
+  email        String?
+  telefono     String?
+  deuda_limite Float   @default(0)
+  ventas       Venta[]
+}
+
+model Proveedor {
+  id       String   @id @default(cuid())
+  rif      String   @unique
+  empresa  String
+  contacto String?
+  compras  Compra[]
+}
+
+model Articulo {
+  id                   String                 @id @default(cuid())
+  codigo               String                 @unique
+  nombre               String
+  precio_costo         Float
+  precio_venta         Float
+  stock                Float                  @default(0)
+  stock_minimo         Float                  @default(0)
+  categoria            String
+  impuesto_iva         Float                  @default(16.0)
+  imagen_url           String?
+  es_combo             Boolean                @default(false)
+  componentes          ComboComponente[]      @relation("ComboToComponentes")
+  combos_que_lo_usan   ComboComponente[]      @relation("ComponenteToCombos")
+  venta_detalles       VentaDetalle[]
+  compra_detalles      CompraDetalle[]
+  movimientos_inventario MovimientoInventario[]
+}
+
+model Venta {
+  id               String           @id @default(cuid())
+  fecha            DateTime         @default(now())
+  clienteId        String
+  cliente          Cliente          @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  total_bruto      Float
+  descuento        Float            @default(0)
+  total_impuesto   Float
+  total_neto       Float
+  estado           EstadoVenta      @default(PENDIENTE)
+  metodo_pago      String
+  detalles         VentaDetalle[]
+  devolucion       DevolucionVenta?
+  tasa_bcv         Float            @default(1.0)
+  total_ves        Float            @default(0)
+  igtf_monto       Float            @default(0)
+  igtf_ves         Float            @default(0)
+  monto_pagado_usd Float            @default(0)
+  monto_pagado_ves Float            @default(0)
+  nro_factura_fiscal String?
+
+  @@index([fecha, estado])
+}
+
+model VentaDetalle {
+  id              String   @id @default(cuid())
+  ventaId         String
+  venta           Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  articuloId      String
+  articulo        Articulo @relation(fields: [articuloId], references: [id])
+  cantidad        Float
+  precio_unitario Float
+  subtotal        Float
+}
+
+model DevolucionVenta {
+  ventaId           String   @id
+  venta             Venta    @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  fecha             DateTime @default(now())
+  motivo            String
+  total_reintegrado Float
+}
+
+model Compra {
+  id                  String          @id @default(cuid())
+  fecha               DateTime        @default(now())
+  proveedorId         String
+  proveedor           Proveedor       @relation(fields: [proveedorId], references: [id], onDelete: Cascade)
+  total               Float
+  factura_referencia  String?
+  detalles            CompraDetalle[]
+}
+
+model CompraDetalle {
+  id              String   @id @default(cuid())
+  compraId        String
+  compra          Compra   @relation(fields: [compraId], references: [id], onDelete: Cascade)
+  articuloId      String
+  articulo        Articulo @relation(fields: [articuloId], references: [id])
+  cantidad        Float
+  costo_unitario  Float
+  subtotal        Float
+}
+
+model MovimientoInventario {
+  id           String         @id @default(cuid())
+  fecha        DateTime       @default(now())
+  articuloId   String
+  articulo     Articulo       @relation(fields: [articuloId], references: [id], onDelete: Cascade)
+  tipo         TipoMovimiento
+  cantidad     Float
+  referenciaId String?
+}
+
+model Categoria {
+  id          String   @id @default(cuid())
+  nombre      String   @unique
+  descripcion String?
+}
+
+model RolePermission {
+  id      String @id @default(cuid())
+  rol     Rol
+  permiso String
+
+  @@unique([rol, permiso])
+}
+
+model ComboComponente {
+  id               String   @id @default(cuid())
+  comboId          String
+  combo            Articulo @relation("ComboToComponentes", fields: [comboId], references: [id], onDelete: Cascade)
+  componenteId     String
+  componente       Articulo @relation("ComponenteToCombos", fields: [componenteId], references: [id], onDelete: Cascade)
+  cantidad         Float
+
+  @@unique([comboId, componenteId])
+}

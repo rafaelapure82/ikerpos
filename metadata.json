@@ -1,0 +1,6 @@
+{
+  "name": "Sistema IKER POSPyME",
+  "description": "Sistema ERP y Facturación POSPyME con Backend en Express, ORM Prisma (SQLite) y Frontend moderno en React y Tailwind CSS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
